@@ -1,27 +1,23 @@
 # 2 Determining Who Is a Disperser vs Range-resident
 # This script includes the following:
-#     1. Fix the formatting of lists
-#     2. Check the DOF values for each individual 
+#     1. Check the DOF values for each wild-raised individual 
+#     2. Check the DOF values for each orphaned individual 
 
-#load packages
-library(ctmm) #working with tel data
+# load packages
+library(ctmm) # working with UDs
 
-
-#load data
-load("~/Giant_Anteater_Orphan/FIXED/Results/Fits/Wild_raised/Lists/FITS_wild_total.rda") #wild-raised
-load("~/Giant_Anteater_Orphan/FINAL/RESULTS/Fits/Fits_orphan.rda") #orphaned
-
-#import AKDEs
-#load data
-load("~/Giant_Anteater_Orphan/FIXED/Results/AKDEs/Wild-raised/Lists/AKDE_wild_total.rda") #wild-raised
-load("~/Giant_Anteater_Orphan/FINAL/RESULTS/AKDEs/UDs_orphan.rda") #orphaned
+# import UDs
+load("./RESULTS/AKDEs/UDs_orphan.rda") # orphaned 
+load("./RESULTS/AKDEs/UDs_wild.rda") # wild-raised
 
 
-# when DOF for area seen when using summary() on an AKDE is less than two, the individual is likely not range resident (https://groups.google.com/g/ctmm-user/c/R75QHDysv6s/m/rZX6BN4oAgAJ)
-#evaluate individuals ------------------------------------------------------------------------------- wild raised -------------------------------------------------------------------
-#looking at telemetries and home ranges on a map is very informative about how movement looks (individuals can just look like dispersers) 
-#but some individuals who look like they dispersed, may not have, so quantifiying that with DOF evaluations is good too
+# when DOF for area  on an AKDE is less than two, the individual is likely not range resident (https://groups.google.com/g/ctmm-user/c/R75QHDysv6s/m/rZX6BN4oAgAJ)
+# looking at telemetry points and home ranges on a map is very informative on movement (individuals can just look like dispersers), but some individuals who look like they dispersed, may not have, 
+# so quantifiying that with DOF evaluations is good practice
 
+
+
+# wild-raised ----
 summary(AKDE_wild[[1]], units = FALSE) #range-resident  $DOF area     bandwidth 
                                                             #312.6379 1607.5342 
 
@@ -100,25 +96,25 @@ summary(AKDE_wild[[25]], units = FALSE) #disperser  $DOF area     bandwidth ****
 summary(AKDE_wild[[26]], units = FALSE) #disperser  $DOF area     bandwidth ********
                                             #           1.575748  1.490240 
 
-#theory was correct that old individuals are range residents and new ones are dispersers
-#separate dispersers into lists
+
+# separate dispersers into lists
 AKDE_wild_dis <- AKDE_wild[c(24,25,26)]
 FITS_wild_dis <- FITS_wild[c(24,25,26)]
 
-#separate range-residents into lists
+# separate range-residents into lists
 AKDE_wild_RR <- AKDE_wild[-c(24,25,26)]
 FITS_wild_RR <- FITS_wild[-c(24,25,26)]
 
-#save outputs
-save(AKDE_wild_dis, file = "~/Giant_Anteater_Orphan/FINAL/RESULTS/AKDEs/Wild_raised/Lists/AKDE_wild_dis.rda")
-save(FITS_wild_dis, file =  "~/Giant_Anteater_Orphan/FINAL/RESULTS/Fits/Wild_raised/Lists/FITS_wild_dis.rda")
-save(AKDE_wild_RR, file = "~/Giant_Anteater_Orphan/FINAL/RESULTS/AKDEs/Wild_raised/Lists/AKDE_wild_RR.rda")
-save(FITS_wild_RR, file = "~/Giant_Anteater_Orphan/FINAL/RESULTS/Fits/Wild_raised/Lists/FITS_wild_RR.rda")
+# save outputs
+save(AKDE_wild_dis, file = "./RESULTS/AKDEs/UDs_wild_dis.rda")
+save(FITS_wild_dis, file =  "./RESULTS/Fits/Fits_wild_dis.rda")
+save(AKDE_wild_RR, file = "./RESULTS/AKDEs/UDs_wild_RR.rda")
+save(FITS_wild_RR, file = "./RESULTS/Fits/Fits_wild_RR.rda")
 
 
 
-#evaluate individuals--------------------------------------------------------------------------------- orphaned ---------------------------------------------------------------------
 
+# orphaned ----
 summary(AKDE_orphan[[1]], units = FALSE) #range-resident    $DOF area bandwidth 
                                                            #   108.0451  319.4879  
 
@@ -207,25 +203,22 @@ summary(AKDE_orphan[[28]], units = FALSE)#range-resident        $DOF area bandwi
                                                               #     40.88469  76.89346 
 
 
-#based on the telemetry paths, there are some individuals who are either doing huge walkabouts or slight dispersal
-#George, Heather, Mulan, and Peter (double check all)
-
-
-
-#most of previous thoughts were true, but Juju is not a disperser as expected
-#separate dispersers into lists
+# based on the telemetry paths, there are some individuals who are either doing huge walkabouts or slight dispersal
+# George, Heather, Mulan, and Peter (double check all)
+# most of previous thoughts were true, but Juju is not a disperser as expected
+# separate dispersers into lists
 AKDE_orphan_dis <- AKDE_orphan[c(2,3,5,11,14,21,22,23,24,26)]
 FITS_orphan_dis <- FITS_orphan[c(2,3,5,11,14,21,22,23,24,26)]
 
-#separate range-residents into lists
+# separate range-residents into lists
 AKDE_orphan_RR <- AKDE_orphan[-c(2,3,5,11,14,21,22,23,24,26)]
 FITS_orphan_RR <- FITS_orphan[-c(2,3,5,11,14,21,22,23,24,26)]
 
-#save outputs
-save(AKDE_orphan_dis, "~/Giant_Anteater_Orphan/FINAL/RESULTS/AKDEs/Orphaned/AKDE_orphan_dis.rda")
-save(FITS_orphan_dis, "~/Giant_Anteater_Orphan/FINAL/RESULTS/Fits/Orphaned/FITS_orphan_dis.rda")
-save(AKDE_orphan_RR, "~/Giant_Anteater_Orphan/FINAL/RESULTS/AKDEs/Orphaned/AKDE_orphan_RR.rda")
-save(FITS_orphan_RR, "~/Giant_Anteater_Orphan/FINAL/RESULTS/Fits/Orphaned/FITS_orphan_RR.rda")
+# save outputs
+save(AKDE_wild_dis, file = "./RESULTS/AKDEs/UDs_orphan_dis.rda")
+save(FITS_wild_dis, file =  "./RESULTS/Fits/Fits_orphan_dis.rda")
+save(AKDE_wild_RR, file = "./RESULTS/AKDEs/UDs_orphan_RR.rda")
+save(FITS_wild_RR, file = "./RESULTS/Fits/Fits_orphan_RR.rda")
 
 
 
