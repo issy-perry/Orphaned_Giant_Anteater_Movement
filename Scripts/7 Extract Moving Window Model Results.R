@@ -11,8 +11,8 @@ library(lubridate) # dates for the moving window model
 library(purrr) # binding dataframes together
 
 # load tel data
-load("./DATA/Wild_raised_tel_data/Data_telemetry.rda") #wild-raised 
-load("./DATA/Orphaned_tel_data/Data_telemetry.rda") #orphaned 
+load("./DATA/Wild_raised_tel_data/Data_telemetry_RR.rda") # wild-raised 
+load("./DATA/Orphaned_tel_data/Data_telemetry_RR.rda") # orphaned 
 
 # create file path for importing window analysis results
 USE_path <- paste("./RESULTS/Window/Land_Use", sep = "") # use same path for distance to land type
