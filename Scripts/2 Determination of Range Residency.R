@@ -8,16 +8,17 @@
 # load packages
 library(ctmm) # working with ctmm objects
 
-# load data
+# load results and data
 # wild-raised
-# save outputs
 load("./RESULTS/AKDEs/UDs_wild.rda")
 load("./RESULTS/Fits/Fits_wild.rda")
 load("./RESULTS/Speed/Speed_wild.rda")
-# orphaned data
+load("./DATA/Wild_raised_tel_data/Data_telemetry.rda")
+# orphaned 
 load("./RESULTS/Fits/Fits_orphan.rda") 
 load("./RESULTS/AKDEs/UDs_orphan.rda")
 load("./RESULTS/Speed/Speed_orphans.rda")
+load("./DATA/Orphaned_tel_data/Data_telemetry.rda")
 
 # wild-raised population ----
 summary(AKDE_wild[["Alexander"]], units = FALSE) #range-resident  $DOF area     bandwidth 
@@ -111,12 +112,15 @@ SPEED_wild <- SPEED_wild[c("Alexander", "Annie", "Anthony", "Beto", "Bumpus", "C
                            "Elaine", "Hannah", "Jackson", "Jane", "Kyle", "Larry", "Little_Rick", 
                            "Luigi", "Makao", "Margaret", "Maria", "Puji", "Reid", "Rodolfo", "Sheron", 
                            "Thomas")]
-
+DATA_wild <- DATA_wild[c("Alexander", "Annie", "Anthony", "Beto", "Bumpus", "Cate", "Christoffer", 
+                         "Elaine", "Hannah", "Jackson", "Jane", "Kyle", "Larry", "Little_Rick", 
+                         "Luigi", "Makao", "Margaret", "Maria", "Puji", "Reid", "Rodolfo", "Sheron", 
+                         "Thomas")]
 # save outputs
 save(AKDE_wild, file = "./RESULTS/AKDEs/UDs_wild_RR.rda")
 save(FITS_wild, file = "./RESULTS/Fits/Fits_wild_RR.rda")
 save(SPEED_wild, file = "./RESULTS/Speed/Speed_wild_RR.rda")
-
+save(DATA_wild, file = "./DATA/Wild_raised_tel_data/Data_telemetry_RR.rda")
 
 # orphaned population ----
 summary(AKDE_orphan[["Arya"]], units = FALSE) #range-resident    $DOF area bandwidth 
@@ -217,7 +221,11 @@ FITS_orphan <- FITS_orphan[c("Arya", "Bella", "Colete", "Dom", "Dumbo_1", "Dumbo
 SPEED_orphan <- SPEED_orphan[c("Arya", "Bella", "Colete", "Dom", "Dumbo_1", "Dumbo_2", "George", 
                                "Heather", "Juju_2", "Mulan", "Nancy", "Peter", "Rita", "Tim_2", 
                                "Tim_3")]
+DATA_orphan <- DATA_orphan[c("Arya", "Bella", "Colete", "Dom", "Dumbo_1", "Dumbo_2", "George", 
+                             "Heather", "Juju_2", "Mulan", "Nancy", "Peter", "Rita", "Tim_2", 
+                             "Tim_3")]
 # save outputs
 save(AKDE_orphan, file = "./RESULTS/AKDEs/UDs_orphan_RR.rda")
 save(FITS_orphan, file = "./RESULTS/Fits/Fits_orphan_RR.rda")
 save(SPEED_orphan, file = "./RESULTS/Speed/Speed_orphans_RR.rda")
+save(DATA_orphan, file = "./DATA/Orphaned_tel_data/Data_telemetry_RR.rda")
