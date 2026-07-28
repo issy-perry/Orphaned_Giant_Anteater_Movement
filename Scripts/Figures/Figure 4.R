@@ -1,46 +1,139 @@
-#load packages
+# load packages
 library(ctmm) #movement
 library(dplyr)
 library(ggplot2) #making plots
 library(ggpubr) #arranging plots in multiples
-library(tidyr) #drop_na function
+library(tidyr) #pivot_longer()
+library(patchwork) # plotting final combo
 
-load("~/Giant_Anteater_Orphan/FIXED/Results/RSFs/Mean_Orphan_Wild.rda")
-O_W <- mean_all %>% 
-  select(Status, Residence, contains("_low")) %>% 
-  pivot_longer(cols = -c(Status, Residence), names_to = "type", values_to = "low") %>% 
-  mutate(type = gsub("_low", "", type)) %>% 
-  full_join(mean_all %>% 
-              select(Status, Residence, contains("_est")) %>% 
-              pivot_longer(cols = -c(Status, Residence), names_to = "type", values_to = "est") %>% 
-              mutate(type = gsub("_est", "", type)), 
-            by = c("Status", "Residence", "type")) %>% 
-  full_join(mean_all %>% 
-              select(Status, Residence, contains("_high")) %>% 
-              pivot_longer(cols = -c(Status, Residence), names_to = "type", values_to = "high") %>% 
-              mutate(type = gsub("_high", "", type)), 
-            by = c("Status", "Residence", "type")) %>% 
-  
-  
-  
-  ggplot() +
-  geom_errorbar(aes(x = est, xmin = low, xmax = high, y = type, color = Status), width = 0.5, size = 2.5,  position = position_dodge(width = 0.5)) +
-  scale_color_manual("Population", values = c("Orphaned" = "#EA8109", "Wild-raised" = "#23C3A8")) +
-  geom_vline(xintercept = 0, col = "grey70", linetype = "dashed", size = 1) +
+
+
+
+#ratios of movement behavior ---------------------------------
+#load data
+load("./RESULTS/Window/Total_meta_RR_df.rda")
+#load("~/Giant_Anteater_Orphan/FIXED/Results/Window_Analysis/META/Successful_meta.rda")
+#load("~/Giant_Anteater_Orphan/FIXED/Results/Window_Analysis/META/Unsuccessful_meta.rda")
+
+
+
+HR_win <- ggplot() +
+  geom_line(data = META_win_orphan, 
+            aes(x = time_since_release, y = HR_est, color = "Ratio of Orphaned to Wild-Raised Population"), 
+            size = 1) +
+  geom_ribbon(data = META_win_orphan, 
+              aes (x = time_since_release, ymin = HR_low, ymax = HR_high, fill = "Ratio of Orphaned to Wild-Raised Population"), 
+              alpha = 0.1) +
+  geom_hline(yintercept = 1, 
+             col = "grey", 
+             linetype = "dashed",
+             size = 0.75) +
+  scale_y_continuous(trans = "log10") +
+  scale_fill_manual(values = c("Ratio of Orphaned to Wild-Raised Population" = "#23C3A8")) + 
+  scale_color_manual(values = c("Ratio of Orphaned to Wild-Raised Population" = "#23C3A8")) + 
+  labs(title = "a.", 
+       y = "log(home range[orphan] / home range[wild-raised])", 
+       x = "Time Since Release (days)") +
   theme(panel.background = element_blank(), 
         axis.line = element_line(color = "darkgray"), 
-        plot.title = element_text(face = "bold", size = 32, family = "sans", hjust = 0.5, vjust = 0.2),      
-        legend.position = "bottom",
-        legend.title = element_blank(),
-        legend.text = element_text(size=16, family = "sans", face = "bold"),
-        axis.text.y = element_text(size = 14),
-        axis.title.x = element_text(size = 14))+
-  labs(y = element_blank(), x = "Poisson Regression Coefficients", title = "Comparison of Habitat Selection Means Between Orphaned and Wild-raised Populations") 
+        legend.position = "none",
+        plot.title = element_text(size = 12, family = "sans", hjust = 0.06),
+        plot.background = element_rect(fill = "transparent", color = NA),
+        legend.background = element_rect(fill = "transparent"),
+        axis.title.x = element_text(size = 12),
+        axis.text.x = element_text(size = 10),
+        axis.text.y = element_text(size = 10),
+        axis.title.y = element_text(size = 10)) #remove if you want the grid
+#plot(HR_win)
 
-plot(O_W)
 
-COMP <- ggarrange(O_W, MEAN_S,
-                  nrow = 1, ncol = 2)
-COMP  <- annotate_figure(COMP, top = text_grob("Comparison of Habitat Selection Between Populations", face = "bold", size = 32))
-plot(COMP)
+
+
+#options(scipen = 999)
+speed_win <- ggplot() +
+  geom_line(data = META_win_orphan, 
+            aes(x = time_since_release, y = speed_est, color = "Ratio of Orphaned to Wild-Raised Population"), 
+            size = 1) +
+  geom_ribbon(data = META_win_orphan, 
+              aes (x = time_since_release, ymin = speed_low, ymax = speed_high, fill = "Ratio of Orphaned to Wild-Raised Population"), 
+              alpha = 0.1) +
+  geom_hline(yintercept = 1, 
+             col = "grey", 
+             linetype = "dashed",
+             size = 0.75) +
+  scale_y_continuous(trans = "log10") +
+  scale_fill_manual(values = c("Ratio of Orphaned to Wild-Raised Population" = "#23C3A8")) + 
+  scale_color_manual(values = c("Ratio of Orphaned to Wild-Raised Population" = "#23C3A8")) + 
+  labs(title = "b.", y = "log(speed[orphan] / speed[wild-raised])",
+       x = "Time Since Release (days)") +
+  theme(panel.background = element_blank(), 
+        axis.line = element_line(color = "darkgray"), 
+        legend.position = "none",
+        plot.title = element_text(size = 12, family = "sans", hjust = 0.06),
+        plot.background = element_rect(fill = "transparent", color = NA),
+        legend.background = element_rect(fill = "transparent"),
+        axis.title.x = element_text(size = 12),
+        axis.text.x = element_text(size = 10),
+        axis.text.y = element_text(size = 10),
+        axis.title.y = element_text(size = 10)) #remove if you want the grid
+#plot(speed_win)
+
+
+
+
+
+
+
+#options(scipen = 999)
+tauv_win <- ggplot() +
+  geom_line(data = META_win_orphan, 
+            aes(x = time_since_release, y = tauvelocity_est, color = "Ratio of Orphaned to Wild-Raised Population"), 
+            size = 1) +
+  geom_ribbon(data = META_win_orphan, 
+              aes (x = time_since_release, ymin = tauvelocity_low, ymax = tauvelocity_high, fill = "Ratio of Orphaned to Wild-Raised Population"), 
+              alpha = 0.1) +
+  geom_hline(yintercept = 1, 
+             col = "grey", 
+             linetype = "dashed",
+             size = 0.75) +
+  scale_y_continuous(trans = "log10") +
+  scale_fill_manual(values = c("Ratio of Orphaned to Wild-Raised Population" = "#23C3A8")) + 
+  scale_color_manual(values = c("Ratio of Orphaned to Wild-Raised Population" = "#23C3A8")) + 
+  labs(title = "c.", 
+       y = "log(tau velocity[orphan] / tauvelocity[wild-raised])", 
+       x = "Time Since Release (days)") +
+  theme(panel.background = element_blank(), 
+        axis.line = element_line(color = "darkgray"), 
+        legend.position = "none",
+        plot.title = element_text(size = 12, family = "sans", hjust = 0.06),
+        plot.background = element_rect(fill = "transparent", color = NA),
+        legend.background = element_rect(fill = "transparent"),
+        axis.title.x = element_text(size = 12),
+        axis.text.x = element_text(size = 10),
+        axis.text.y = element_text(size = 10),
+        axis.title.y = element_text(size = 10)) #remove if you want the grid
+#plot(tauv_win)
+
+
+# create layout for plotting
+layout_design <- "
+  A
+  B
+  C
+"
+
+# 3. Assemble them together
+HR_win + speed_win + tauv_win + plot_layout(design = layout_design) &   
+  theme(plot.background = element_rect(fill = "transparent", color = NA), 
+        panel.background = element_rect(fill = "transparent", color = NA),
+        plot.title.position = "plot"
+  )
+
+# save plot
+ggsave("./FIGURES/Revised/Figure_4.png", width = 8.5, height = 9.5, units = "in", 
+       dpi = 300, bg = "transparent")
+
+
+
+
 
