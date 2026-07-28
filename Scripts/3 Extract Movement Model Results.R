@@ -1,25 +1,22 @@
 # 3 Extract Movement Model Results
 # This script includes the following:
-#     1. Extract results from each movement model, UD, and speed estimation
+#     1. Extract results from each movement model, UD, and speed estimation for interpretation and plotting
 #     2. Change units so all results are comparable and easy to read
-#     3. Conduct a meta-analysis on the means for each population
+#     3. Conduct a meta-analysis to determine the movement metric means for each population
 
 # load packages
 library(ctmm) # working with ctmm objects
 
-# load movement models
-load("./RESULTS/Fits/Fits_orphan.rda") # orphaned 
-load("./RESULTS/Fits/Fits_wild.rda") # wild-raised
-
-# load UDs
-load("./RESULTS/AKDEs/UDs_orphan.rda") # orphaned 
-load("./RESULTS/AKDEs/UDs_wild.rda") # wild-raised
-
-# load speed estimations
-load("./RESULTS/Speed/Speed_orphans.rda") # orphaned 
-load("./RESULTS/Speed/Speed_wild_raised.rda") # wild-raised
-
-
+# load results
+# wild-raised population
+# save outputs
+load("./RESULTS/AKDEs/UDs_wild_RR.rda")
+load("./RESULTS/Fits/Fits_wild_RR.rda")
+load("./RESULTS/Speed/Speed_wild_RR.rda")
+# orphaned population
+load("./RESULTS/AKDEs/UDs_wild_RR.rda")
+load("./RESULTS/Fits/Fits_wild_RR.rda")
+load("./RESULTS/Speed/Speed_wild_RR.rda")
 
 
 
@@ -106,13 +103,9 @@ for(i in 1:length(FITS_orphan)){
   }
    # end of if/else loops
   
-  
   # bind individuals dataframe to total dataframe
   FITS_orphan_df <- rbind(FITS_orphan_df, fit_test) 
-  
-  
-  
-  
+
   # UDs ----
   # create a dataframe to hold summary outputs of AKDEs for EACH individual
   akde_test <- data.frame()
@@ -144,9 +137,6 @@ for(i in 1:length(FITS_orphan)){
   
   # bind individual's dataframe to total dataframe
   AKDE_orphan_df <- rbind(AKDE_orphan_df, akde_test) 
-  
-  
-  
   
   # speed ----
   # create a dataframe to hold outputs of mean speed for EACH individual
@@ -182,7 +172,6 @@ for(i in 1:length(FITS_orphan)){
 
 } # end of outer loop
 
-
 #combine dataframes into one
 Orphan_df <- cbind(FITS_orphan_df, SPEED_orphan_df, AKDE_orphan_df)
 
@@ -217,21 +206,12 @@ Orphan_df[, "Mean_Speed_low"] <- "km/day" %#% Orphan_df[, "Mean_Speed_low"] # co
 Orphan_df[, "Mean_Speed_est"] <- "km/day" %#% Orphan_df[, "Mean_Speed_est"] # converts m/s to km/day 
 Orphan_df[, "Mean_Speed_high"] <- "km/day" %#% Orphan_df[, "Mean_Speed_high"] # converts m/s to km/day 
 
-# remove odd numbers for rownames
+# remove rownames
 row.names(Orphan_df) <- NULL
 
 
-
-
-
-
-
-
-
-
-
 # wild-raised population ----
-# create a dataframe to hold results for whole population 
+# create dataframes to hold results for whole population 
 FITS_wild_df <- data.frame()
 AKDE_wild_df <- data.frame()
 SPEED_wild_df <- data.frame()
@@ -308,7 +288,6 @@ for(i in 1:length(FITS_wild)){
     fit_test[i, "diffusion_high"] <- NA
   }
   # end of if/else loops
-  
   # bind individuals dataframe to total dataframe
   FITS_wild_df <- rbind(FITS_wild_df, fit_test) 
   
@@ -316,7 +295,6 @@ for(i in 1:length(FITS_wild)){
   # UDs ----
   # create a dataframe to hold summary outputs of AKDEs for EACH individual
   akde_test <- data.frame()
-  
   # extract information from summary output of an individual's AKDE
   summary_df <- data.frame(t(summary(AKDE_wild[[i]], units = FALSE)[["CI"]])) 
   # if value is available in summary output, extract it into the individual's dataframe. 
@@ -337,24 +315,17 @@ for(i in 1:length(FITS_wild)){
     akde_test[i, "HR_high"] <- NA
   }
   # end of if/else loops
-  
   # assign name of giant anteater to the individual's dataframe
   akde_test$ID <- AKDE_wild[[i]]@info[1]
-  
   # bind individual's dataframe to total dataframe
   AKDE_wild_df <- rbind(AKDE_wild_df, akde_test) 
-  
-  
-  
   
   
   # mean speed ----
   # create a dataframe to house the individual's results
   speed_test <- data.frame()
-  
   # extract individual
   IND <- SPEED_wild[[i]]
-  
   # extract confidence intervals of speed from individual
   df <- IND[[2]] 
   # if value is available in summary output, extract it into the individual's dataframe. 
@@ -375,16 +346,13 @@ for(i in 1:length(FITS_wild)){
     speed_test[i, "Mean_Speed_high"] <- NA
   }
   # end of if/else loop
-  
   # bind individual's dataframe to total dataframe
   SPEED_wild_df <- rbind(SPEED_wild_df, speed_test)
-  
 } # end of outer loop
 
 
 # combine dataframes into one
 Wild_df <- cbind(FITS_wild_df, SPEED_wild_df, AKDE_wild_df)
-
 # remove extra NA values
 Wild_df <- Wild_df[!is.na(Wild_df$area_low),]
 
@@ -409,47 +377,20 @@ Wild_df[, "diffusion_high"] <- "km^2/day" %#% Wild_df[, "diffusion_high"] # conv
 Wild_df[,"HR_low"] <- "km^2" %#% Wild_df[,"HR_low"] # converts m^2 to km^2
 Wild_df[, "HR_est"] <- "km^2" %#% Wild_df[,"HR_est"] # converts m^2 to km^2
 Wild_df[, "HR_high"] <- "km^2" %#% Wild_df[,"HR_high"] # converts m^2 to km^2
-# mean speed was already in km/day for each individual
+# mean speed was already in km/day for each individual (forgot to add "units = FALSE" arguement for models)
 #Wild_df[, "Mean_Speed_low"] <- "km/day" %#% Wild_df[, "Mean_Speed_low"] # converts m/s to km/day 
 #Wild_df[, "Mean_Speed_est"] <- "km/day" %#% Wild_df[, "Mean_Speed_est"] # converts m/s to km/day 
 #Wild_df[, "Mean_Speed_high"] <- "km/day" %#% Wild_df[, "Mean_Speed_high"] # converts m/s to km/day 
 
-
 # remove rownames
 row.names(Wild_df) <- NULL
-
-# add information for each dataframe
+# add information about populations for each dataframe
 Orphan_df$Status <- "Orphaned"
 Wild_df$Status <- "Wild-raised"
-
-# add residency infomation (i.e. disperser vs. range-resident)
-# orphaned
-Orphan_df[-c(2,3,5,6,11,14,15,19,21,22,23,24,26), "Residency"] <- "Range-resident"
-Orphan_df[c(2,3,5,6,11,14,15,19,21,22,23,24,26), "Residency"] <- "Disperser"
-
-# wild-raised
-Wild_df[-c(24,25,26), "Residency"] <- "Range-resident"
-Wild_df[c(24,25,26), "Residency"] <- "Disperser"
-
-# add information about who is successful vs unsuccessful
-# orphaned
-Orphan_df[c(4,9,10,12,13,15,16), "Success"] <- "Successful"
-Orphan_df[c(1,2,5,6,11,14,17,18,19,20,21,22,23,24,25,26,27,28), "Success"] <- "Unsuccessful" 
-Orphan_df[c(3,7,8), "Success"] <- "Uncertain" 
-
-#wild-raised
-Wild_df[,"Success"] <- NA
-
-
 # combine the two dataframes into one
 Movement_df <- rbind(Orphan_df, Wild_df)
-
 # save file
-save(Movement_df , file ="./RESULTS/Movement_model_df.rda")
-
-
-
-
+save(Movement_df , file ="./RESULTS/Movement_model_RR_df.rda")
 
 
 # meta-analysis ----
@@ -537,42 +478,4 @@ META_total_w$Status <- "Wild-raised"
 META_df <- rbind(META_total_o, META_total_w)
 
 # save output
-save(META_df, file = "./RESULTS/META_average_df.rda")
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+save(META_df, file = "./RESULTS/META_average_RR_df.rda")
