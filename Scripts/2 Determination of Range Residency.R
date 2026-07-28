@@ -1,4 +1,4 @@
-# 2 Determining Which Individuals Are Range-resident 
+# 2 Determining Who Is a Disperser vs Range-resident
 # This script includes the following:
 #     1. Check the DOF values for each wild-raised individual 
 #     2. Check the DOF values for each orphaned individual 
@@ -7,6 +7,17 @@
 
 # load packages
 library(ctmm) # working with ctmm objects
+
+# load data
+# wild-raised
+# save outputs
+load("./RESULTS/AKDEs/UDs_wild.rda")
+load("./RESULTS/Fits/Fits_wild.rda")
+load("./RESULTS/Speed/Speed_wild.rda")
+# orphaned data
+load("./RESULTS/Fits/Fits_orphan.rda") 
+load("./RESULTS/AKDEs/UDs_orphan.rda")
+load("./RESULTS/Speed/Speed_orphans.rda")
 
 # wild-raised population ----
 summary(AKDE_wild[["Alexander"]], units = FALSE) #range-resident  $DOF area     bandwidth 
@@ -96,11 +107,15 @@ FITS_wild <- FITS_wild[c("Alexander", "Annie", "Anthony", "Beto", "Bumpus", "Cat
                          "Elaine", "Hannah", "Jackson", "Jane", "Kyle", "Larry", "Little_Rick", 
                          "Luigi", "Makao", "Margaret", "Maria", "Puji", "Reid", "Rodolfo", "Sheron", 
                          "Thomas")] 
+SPEED_wild <- SPEED_wild[c("Alexander", "Annie", "Anthony", "Beto", "Bumpus", "Cate", "Christoffer", 
+                           "Elaine", "Hannah", "Jackson", "Jane", "Kyle", "Larry", "Little_Rick", 
+                           "Luigi", "Makao", "Margaret", "Maria", "Puji", "Reid", "Rodolfo", "Sheron", 
+                           "Thomas")]
+
 # save outputs
-save(AKDE_wild_RR, file = "./RESULTS/AKDEs/UDs_wild_RR.rda")
-save(FITS_wild_RR, file = "./RESULTS/Fits/Fits_wild_RR.rda")
-
-
+save(AKDE_wild, file = "./RESULTS/AKDEs/UDs_wild_RR.rda")
+save(FITS_wild, file = "./RESULTS/Fits/Fits_wild_RR.rda")
+save(SPEED_wild, file = "./RESULTS/Speed/Speed_wild_RR.rda")
 
 
 # orphaned population ----
@@ -199,8 +214,10 @@ AKDE_orphan <- AKDE_orphan[c("Arya", "Bella", "Colete", "Dom", "Dumbo_1", "Dumbo
 FITS_orphan <- FITS_orphan[c("Arya", "Bella", "Colete", "Dom", "Dumbo_1", "Dumbo_2", "George", 
                              "Heather", "Juju_2", "Mulan", "Nancy", "Peter", "Rita", "Tim_2", 
                              "Tim_3")] 
-
+SPEED_orphan <- SPEED_orphan[c("Arya", "Bella", "Colete", "Dom", "Dumbo_1", "Dumbo_2", "George", 
+                               "Heather", "Juju_2", "Mulan", "Nancy", "Peter", "Rita", "Tim_2", 
+                               "Tim_3")]
 # save outputs
 save(AKDE_orphan, file = "./RESULTS/AKDEs/UDs_orphan_RR.rda")
 save(FITS_orphan, file = "./RESULTS/Fits/Fits_orphan_RR.rda")
-
+save(SPEED_orphan, file = "./RESULTS/Speed/Speed_orphans_RR.rda")
