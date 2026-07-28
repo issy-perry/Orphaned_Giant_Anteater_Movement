@@ -1,124 +1,103 @@
-#load package
-library(ctmm)
-#library(tidyverse)
-library(ggplot2)
-library(ggpubr)
+#load packages
+library(ctmm) #movement
+library(dplyr)
+library(ggplot2) #making plots
+library(ggpubr) #arranging plots in multiples
+library(tidyr) #drop_na function
 
-
-#load data
-#load files
-load("~/Giant_Anteater_Orphan/FIXED/Results/Fits/Total_META_df.rda")
-load("~/Giant_Anteater_Orphan/FIXED/Results/Fits/Total_Movement_df.rda")
-#change values to numeric I guess
-
-Movement_df$ID <- as.character(Movement_df$ID) #for fitting gam
-META_df <- META_df[-c(1,2,4,5),]
-
-
-
-HR <- ggplot() +
-  #total wild-raised
-  geom_pointrange(data = subset(Movement_df, Status == "Wild-raised"), 
-                  aes(x = HR_est, y = ID, xmin = HR_low, xmax = HR_high, color = "Wild-raised"), 
-                  shape = 17) +
-  geom_vline(xintercept = META_df[2,"HR_est"],
-             color = "#EA8109", lty = "dashed", lwd = 1) + #area_est
-  geom_rect(data = META_df[2,], aes(xmin = HR_low, xmax = HR_high, ymin = -Inf, ymax = Inf, color = "Wild-raised"), 
-            color = NA, fill = "#EA8109", alpha = 0.15) +
-  #total orphaned
-  geom_pointrange(data = subset(Movement_df, Status == "Orphaned"), 
-                  aes(x = HR_est, y = ID, xmin = HR_low, xmax = HR_high, color = "Orphaned"), 
-                  shape = 15) +
-  geom_vline(xintercept = META_df[1,"HR_est"], color = "#23C3A8", lty = "dashed", lwd = 1) + #area_est
-  geom_rect(data = META_df[1,], 
-            aes(xmin = HR_low, xmax = HR_high, ymin = -Inf, ymax = Inf, color = "Orphaned"), 
-            color = NA, fill = "#23C3A8", alpha = 0.1) +
-  scale_color_manual("Individual Type", 
-                     values = c("Orphaned" = "#23C3A8", "Wild-raised" = "#EA8109")) +
-  labs(title = "Home Range Size Comparison (log-scaled)", y = element_blank(), x = "Area (km^2)") +
-  scale_x_continuous(trans = "log10") +
+load("./RESULTS/RSFs_FOREST/OLD_0.055_1.5/Mean_RSF_all_df.rda")
+mean_all$Residence <- NA
+O_W <- mean_all %>% 
+  select(ID, Residence, contains("_low")) %>% 
+  pivot_longer(cols = -c(ID, Residence), names_to = "type", values_to = "low") %>% 
+  mutate(type = gsub("_low", "", type)) %>% 
+  full_join(mean_all %>% 
+              select(ID, Residence, contains("_est")) %>% 
+              pivot_longer(cols = -c(ID, Residence), names_to = "type", values_to = "est") %>% 
+              mutate(type = gsub("_est", "", type)), 
+            by = c("ID", "Residence", "type")) %>% 
+  full_join(mean_all %>% 
+              select(ID, Residence, contains("_high")) %>% 
+              pivot_longer(cols = -c(ID, Residence), names_to = "type", values_to = "high") %>% 
+              mutate(type = gsub("_high", "", type)), 
+            by = c("ID", "Residence", "type")) %>% 
+  
+  #23C3A8
+  
+  ggplot() +
+  geom_errorbar(aes(x = est, xmin = low, xmax = high, y = type, color = ID), width = 0.5, linewidth = 2.5,  position = position_dodge(width = 0.5)) +
+  scale_color_manual("Population", values = c("Orphaned" = "#23C3A8", "Wild-raised" = "#EA8109")) +
+  geom_vline(xintercept = 0, col = "grey70", linetype = "dashed", linewidth = 1) +
+  labs(y = "", 
+       x = "Poisson Regression Coefficients", 
+       title = "") +
   theme(panel.background = element_blank(), 
         axis.line = element_line(color = "darkgray"), 
-        plot.title = element_text(face = "bold", size = 20, family = "sans", hjust = 0.5, vjust = 0.2),      
+        legend.position = "bottom",
         legend.title = element_blank(),
-        axis.title.x = element_text(size = 14),
-        legend.text = element_text(size=16, family = "sans", face = "bold"),)  
-plot(HR)
+        legend.text = element_text(size=12, family = "sans", face = "bold"),
+        plot.background = element_rect(fill = "transparent", color = NA),
+        legend.background = element_rect(fill = "transparent"),
+        axis.text.y = element_text(size = 12),
+        axis.title.x = element_text(size = 12))
+
+plot(O_W)
 
 
 
 
-tauvelocity <- ggplot() +
-  #total wild-raised
-  geom_pointrange(data = subset(Movement_df, Status == "Wild-raised"), 
-                  aes(x = τvelocity_est, y = ID, xmin = τvelocity_low, xmax = τvelocity_high, color = "Wild-raised"), 
-                  shape = 17) +
-  geom_vline(xintercept = META_df[2,"τvelocity_est"], 
-             color = "#EA8109", lty = "dashed", lwd = 1) + #area_est
-  geom_rect(data = META_df[2,], 
-            aes(xmin = τvelocity_low, xmax = τvelocity_high, ymin = -Inf, ymax = Inf, color = "Wild-raised"), 
-            color = NA, fill = "#EA8109", alpha = 0.15) +
-  #total orphaned
-  geom_pointrange(data = subset(Movement_df, Status == "Orphaned"), 
-                  aes(x = τvelocity_est, y = ID, xmin = τvelocity_low, xmax = τvelocity_high, color = "Orphaned"), 
-                  shape = 15) +
-  geom_vline(xintercept = META_df[1,"τvelocity_est"], 
-             color = "#23C3A8", lty = "dashed", lwd = 1) + #area_est
-  geom_rect(data = META_df[1,], 
-            aes(xmin = τvelocity_low, xmax = τvelocity_high, ymin = -Inf, ymax = Inf, color = "Orphaned"), 
-            color = NA, fill = "#23C3A8", alpha = 0.15) +
-  scale_color_manual("Individual Type", values = c("Orphaned" = "#23C3A8", "Wild-raised" = "#EA8109")) +
-  labs(title = "τvelocity Comparison (log-scaled)",
-       y = element_blank(),
-       x = "τvelocity (minutes)") +
-  scale_x_continuous(trans = "log10") +
+ggsave("./FIGURES/Revised/Figure_3_with_development.png", width = 8.5, height = 5.5, units = "in", 
+       dpi = 300, bg = "transparent")
+
+
+
+
+
+
+
+
+# without development ------
+
+mean_all[,c("Development_low", "Development_est", "Development_high")] <- NULL
+O_W <- mean_all %>% 
+  select(ID, Residence, contains("_low")) %>% 
+  pivot_longer(cols = -c(ID, Residence), names_to = "type", values_to = "low") %>% 
+  mutate(type = gsub("_low", "", type)) %>% 
+  full_join(mean_all %>% 
+              select(ID, Residence, contains("_est")) %>% 
+              pivot_longer(cols = -c(ID, Residence), names_to = "type", values_to = "est") %>% 
+              mutate(type = gsub("_est", "", type)), 
+            by = c("ID", "Residence", "type")) %>% 
+  full_join(mean_all %>% 
+              select(ID, Residence, contains("_high")) %>% 
+              pivot_longer(cols = -c(ID, Residence), names_to = "type", values_to = "high") %>% 
+              mutate(type = gsub("_high", "", type)), 
+            by = c("ID", "Residence", "type")) %>% 
+  
+  
+  
+  ggplot() +
+  geom_errorbar(aes(x = est, xmin = low, xmax = high, y = type, color = ID), width = 0.5, linewidth = 2.5,  position = position_dodge(width = 0.5)) +
+  scale_color_manual("Population", values = c("Orphaned" = "#23C3A8", "Wild-raised" = "#EA8109")) +
+  geom_vline(xintercept = 0, col = "grey70", linetype = "dashed", linewidth = 1) +
+  labs(y = "", 
+       x = "Poisson Regression Coefficients",
+       title = "") +
   theme(panel.background = element_blank(), 
         axis.line = element_line(color = "darkgray"), 
-        plot.title = element_text(face = "bold", size = 20, family = "sans", hjust = 0.5, vjust = 0.2),      
+        legend.position = "bottom",
         legend.title = element_blank(),
-        axis.title.x = element_text(size = 14),
-        legend.text = element_text(size=16, family = "sans", face = "bold"),)  
-plot(tauvelocity)
+        plot.background = element_rect(fill = "transparent", color = NA),
+        legend.background = element_rect(fill = "transparent"),
+        legend.text = element_text(size=12, family = "sans", face = "bold"),
+        axis.text.y = element_text(size = 12),
+        axis.title.x = element_text(size = 12))
+
+plot(O_W)
 
 
 
-speed <- ggplot() +
-  #total wild-raised
-  geom_pointrange(data = subset(Movement_df, Status == "Wild-raised"), 
-                  aes(x = speed_est, y = ID, xmin = speed_low, xmax = speed_high, color = "Wild-raised"), 
-                  shape = 17) +
-  geom_vline(xintercept = META_df[2,"speed_est"], 
-             color = "#EA8109", lty = "dashed", lwd = 1) + #area_est
-  geom_rect(data = META_df[2,], 
-            aes(xmin = speed_low, xmax = speed_high, ymin = -Inf, ymax = Inf, color = "Wild-raised"), 
-            color = NA, fill = "#EA8109", alpha = 0.15) +
-  #total orphaned
-  geom_pointrange(data = subset(Movement_df, Status == "Orphaned"),
-                  aes(x = speed_est, y = ID, xmin = speed_low, xmax = speed_high, color = "Orphaned"), 
-                  shape = 15) +
-  geom_vline(xintercept = META_df[1,"speed_est"], 
-             color = "#23C3A8", lty = "dashed", lwd = 1) + #area_est
-  geom_rect(data = META_df[1,], 
-            aes(xmin = speed_low, xmax = speed_high, ymin = -Inf, ymax = Inf, color = "Orphaned"), 
-            color = NA, fill = "#23C3A8", alpha = 0.15) +
-  scale_color_manual("Individual Type", values = c("Orphaned" = "#23C3A8", "Wild-raised" = "#EA8109")) +
-  labs(title = "Speed Comparison (log-scaled)", y = element_blank(), x = "Speed (km/day)") +
-  scale_x_continuous(trans = "log10") +
-  theme(panel.background = element_blank(), 
-        axis.line = element_line(color = "darkgray"), 
-        plot.title = element_text(face = "bold", size = 20, family = "sans", hjust = 0.5, vjust = 0.2),      
-        legend.title = element_blank(),
-        axis.title.x = element_text(size = 14),
-        legend.text = element_text(size=16, family = "sans", face = "bold"),)  
-plot(speed)
 
-
-movement_plot <- ggarrange(HR, tauvelocity, speed,
-                           ncol = 3, nrow = 1, common.legend = TRUE, legend = "bottom")
-
-movement_plot <- annotate_figure(movement_plot, top = text_grob("Comparison of Mean Movement Parameters Between the Orphaned and Wild-raised Populations", face = "bold", size = 32))
-plot(movement_plot)
-
-
-ggsave(movement_plot, file = "~/Giant_Anteater_Orphan/FIXED/Mean_Movement_Params_RR_dis.png", width = 17, height = 8.5, units = "in", dpi = 600, bg = "transparent")
+ggsave("./FIGURES/Revised/Figure_3_no_development.png", width = 8.5, height = 5.5, units = "in", 
+       dpi = 300, bg = "transparent")
 
