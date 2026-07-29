@@ -8,11 +8,11 @@ library(patchwork) # plotting
 
 # load data
 # UDs
-load("./RESULTS/AKDEs/UDs_wild.rda")
+load("./RESULTS/AKDEs/UDs_wild_RR.rda")
 # model fits
-load("./RESULTS/Fits/Fits_wild.rda")
+load("./RESULTS/Fits/Fits_wild_RR.rda")
 # Speeds
-load("./RESULTS/Speed/Speed_wild_raised.rda")
+load("./RESULTS/Speed/Speed_wild_raised_RR.rda")
 
 # subadults are anthony, gala, kyle, little_rick, and reid
 SUBADULT_FIT <- FITS_wild [c("Anthony", "Kyle", "Little_Rick", "Reid")]
