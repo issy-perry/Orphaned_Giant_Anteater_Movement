@@ -7,16 +7,10 @@ library(tidyr) #pivot_longer()
 library(patchwork) # plotting final combo
 
 
-
-
-#ratios of movement behavior ---------------------------------
-#load data
+# load results
 load("./RESULTS/Window/Total_meta_RR_df.rda")
-#load("~/Giant_Anteater_Orphan/FIXED/Results/Window_Analysis/META/Successful_meta.rda")
-#load("~/Giant_Anteater_Orphan/FIXED/Results/Window_Analysis/META/Unsuccessful_meta.rda")
 
-
-
+# plot ratios for home range size over time
 HR_win <- ggplot() +
   geom_line(data = META_win_orphan, 
             aes(x = time_since_release, y = HR_est, color = "Ratio of Orphaned to Wild-Raised Population"), 
@@ -48,8 +42,7 @@ HR_win <- ggplot() +
 
 
 
-
-#options(scipen = 999)
+# plot ratios of speed over time
 speed_win <- ggplot() +
   geom_line(data = META_win_orphan, 
             aes(x = time_since_release, y = speed_est, color = "Ratio of Orphaned to Wild-Raised Population"), 
@@ -79,12 +72,7 @@ speed_win <- ggplot() +
 #plot(speed_win)
 
 
-
-
-
-
-
-#options(scipen = 999)
+# plot ratios of directional persistence over time
 tauv_win <- ggplot() +
   geom_line(data = META_win_orphan, 
             aes(x = time_since_release, y = tauvelocity_est, color = "Ratio of Orphaned to Wild-Raised Population"), 
@@ -122,7 +110,7 @@ layout_design <- "
   C
 "
 
-# 3. Assemble them together
+# put plots together
 HR_win + speed_win + tauv_win + plot_layout(design = layout_design) &   
   theme(plot.background = element_rect(fill = "transparent", color = NA), 
         panel.background = element_rect(fill = "transparent", color = NA),
@@ -132,8 +120,5 @@ HR_win + speed_win + tauv_win + plot_layout(design = layout_design) &
 # save plot
 ggsave("./FIGURES/Revised/Figure_4.png", width = 8.5, height = 9.5, units = "in", 
        dpi = 300, bg = "transparent")
-
-
-
 
 
