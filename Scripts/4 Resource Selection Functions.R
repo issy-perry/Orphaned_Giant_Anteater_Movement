@@ -4,110 +4,57 @@
 #     2. Fit RSFs using tel data and AKDEs against each covariate
 
 
-#load packages 
-library(ctmm) #analysis
-library(terra) #working with spatrasters before turning into rasterclasses
-library(raster) #turn spatrasters into raster classes before running analysis
+# load packages 
+library(ctmm) # includes functions for movement models, UDs, and RSFs
+library(terra) # extracting land types from Spatrasters prior to converting to raster classes
+library(raster) # convert Spatrasters to raster classes for RSFs
+library(lutz) #working with times
+library(sf)
+library(crayon) #adding colored bands to printed announcements for tictoc
 
-
-#load tel data
-load("~/Giant_Anteater_Orphan/FINAL/DATA/Orphaned/Data_telemetry.rda") #orphaned 
-load("~/Giant_Anteater_Orphan/FINAL/DATA/Wild_raised/Data_telemetry.rda") #wild-raised
-
-#rename for convenience
-DATA_wild <- DATA_TELEMETRY
-rm(DATA_TELEMETRY)
+# load data
+load("./DATA/Wild_raised_tel_data/Data_telemetry.rda") #wild-raised 
+load("./DATA/Orphaned_tel_data/Data_telemetry.rda") #orphaned 
 
 #load UDs
-load("~/Giant_Anteater_Orphan/FINAL/RESULTS/AKDEs/UDs_orphan.rda") #orphaned
-load("~/Giant_Anteater_Orphan/FINAL/RESULTS/AKDEs/UDs_wild.rda") #wild-raised
-
+load("./RESULTS/AKDEs/UDs_orphan.rda") #orphaned 
+load("./RESULTS/AKDEs/UDs_wild.rda") #wild-raised 
 
 
 #need to separate the data depending on when the individual was monitored so that the results for land selection are as accurate as possible
 #wild-raised
-DATA_17 <- DATA_wild[c("Anthony", "Bumpus", "Cate", "Christoffer", "Elaine", "Jackson", "Kyle", "Little_Rick", "Makao", 
-                       "Puji", "Segre")]
-DATA_18 <- DATA_wild[c("Alexander", "Annie", "Beto", "Hannah", "Jane", "Larry", "Luigi", "Margaret", "Maria", "Reid", 
-                       "Rodolfo", "Sheron", "Thomas", "Delphine", "Gala")]
+DATA_17 <- DATA_wild[c("Anthony", "Bumpus", "Cate", "Christoffer", "Elaine", "Jackson", "Kyle", "Little_Rick", "Makao", "Puji")] # rm Segre disperser 
+DATA_18 <- DATA_wild[c("Alexander", "Annie", "Beto", "Hannah", "Jane", "Larry", "Luigi", "Margaret", "Maria", "Reid", "Rodolfo", "Sheron", "Thomas")] # rm Gala, Delphine dispersers "Alexander", "Annie", "Beto", "Hannah", "Jane", "Larry", "Luigi", "Margaret", "Maria",
 #orphaned
-DATA_19 <- DATA_orphan[c("Arya", "Capitu", "Dumbo_1", "Dumbo_2")]
-DATA_20 <- DATA_orphan[c("Tim_1")] 
-DATA_21 <- DATA_orphan[c("Renee_1", "Renee_2", "Renee_3", "Renee_4", "Tim_2")]
-DATA_22 <- DATA_orphan[c("Cláudio", "Colete", "Heather", "Juju_1", "Juju_2", "Mulan", "Peter", "Rita", "Tim_3")] 
-DATA_23 <- DATA_orphan[c("Bahia", "Beezie", "Bella", "Dom", "Erick", "George", "Jacobina", "Nancy", "Nayeli")]
-
-
-
+DATA_19 <- DATA_orphan[c("Arya", "Dumbo_1", "Dumbo_2")] # rm Capitu
+#DATA_20 <- DATA_orphan[c("Tim_1")] 
+DATA_21 <- DATA_orphan[c("Tim_2")] # rm "Renee_1", "Renee_2", "Renee_3", "Renee_4",
+DATA_22 <- DATA_orphan[c("Colete", "Heather", "Juju_2", "Mulan", "Peter", "Rita", "Tim_3")] # rm "Cláudio","Juju_1",
+DATA_23 <- DATA_orphan[c("Bella", "George", "Nancy")] # rm "Erick","George",
+DATA_24 <- DATA_orphan[c("Dom")] #rm "Bahia","Beezie", "Jacobina", "Nayeli"
 
 #subset AKDEs
 #wild-raised
-AKDE_17 <- AKDE_wild[c("Anthony", "Bumpus", "Cate", "Christoffer", "Elaine", "Jackson", "Kyle", "Little_Rick", "Makao", 
-                       "Puji", "Segre")]
-AKDE_18 <- AKDE_wild[c("Alexander", "Annie", "Beto", "Hannah", "Jane", "Larry", "Luigi", "Margaret", "Maria", "Reid", 
-                       "Rodolfo", "Sheron", "Thomas", "Delphine", "Gala")]
+AKDE_17 <- AKDE_wild[c("Anthony", "Bumpus", "Cate", "Christoffer", "Elaine", "Jackson", "Kyle", "Little_Rick", "Makao", "Puji")] # rm Segre disperser 
+AKDE_18 <- AKDE_wild[c( "Reid","Rodolfo", "Sheron", "Thomas")] # rm Gala, Delphine dispersers"Alexander", "Annie", "Beto", "Hannah", "Jane", "Larry", "Luigi", "Margaret", "Maria",
 #orphaned
-AKDE_19 <- AKDE_orphan[c("Arya", "Capitu", "Dumbo_1", "Dumbo_2")]
-AKDE_20 <- AKDE_orphan[c("Tim_1")] 
-AKDE_21 <- AKDE_orphan[c("Renee_1", "Renee_2", "Renee_3", "Renee_4", "Tim_2")]
-AKDE_22 <- AKDE_orphan[c("Cláudio", "Colete", "Heather", "Juju_1", "Juju_2", "Mulan", "Peter", "Rita", "Tim_3")] 
-AKDE_23 <-AKDE_orphan[c("Bahia", "Beezie", "Bella", "Dom", "Erick", "George", "Jacobina", "Nancy", "Nayeli")]
+AKDE_19 <- AKDE_orphan[c("Arya", "Dumbo_1", "Dumbo_2")] # rm Capitu
+#AKDE_20 <- AKDE_orphan[c("Tim_1")] 
+AKDE_21 <- AKDE_orphan[c("Tim_2")] # rm "Renee_1", "Renee_2", "Renee_3", "Renee_4",
+AKDE_22 <- AKDE_orphan[c("Colete", "Heather", "Juju_2", "Mulan", "Peter", "Rita", "Tim_3")] # rm "Cláudio","Juju_1",
+AKDE_23 <-AKDE_orphan[c("Bella", "George", "Nancy")] # rm "Erick","George",
+AKDE_24 <- AKDE_orphan[c("Dom")] #rm "Bahia","Beezie", "Jacobina", "Nayeli"
+# clear up environment space
+rm(DATA_wild, DATA_orphan, AKDE_orphan, AKDE_wild) 
 
+# ensure R provides a warning before the loop is done (so that we know what individuals are problematic (if any are) so time is not wasted)
+options(warn = 1)
 
-rm(DATA_wild, DATA_orphan, AKDE_orphan, AKDE_wild) #clear up environment space
-#make lists for new individuals to run
-
-
-#converting Spatrasters to rasterclasses 2017 ----
-cover_2017 <- rast("~/Giant_Anteater_Orphan/Data/Mapbiomas/2017_cover.tif")
-`%notin%` <- Negate(`%in%`)
-Native_Forest <- cover_2017
-Native_Forest[Native_Forest %notin% c(1,3,4,5,6,49,29)] <- FALSE
-Native_Forest[Native_Forest %in% c(1,3,4,5,6,49,29)] <- TRUE
-Native_Forest <- raster(Native_Forest)
-
-Forestry <- cover_2017
-Forestry[Forestry %notin% c(9)] <- FALSE
-Forestry[Forestry %in% c(9)] <- TRUE
-Forestry <- raster(Forestry)
-
-Pasture <- cover_2017
-Pasture[Pasture %notin% c(12,15)] <- FALSE
-Pasture[Pasture %in% c(12,15)] <- TRUE
-Pasture <- raster(Pasture)
-
-Agriculture <- cover_2017
-Agriculture[Agriculture %notin% c(18,19,20,21,39,40,41,62,36,46,47,35,48)] <- FALSE
-Agriculture[Agriculture %in% c(18,19,20,21,39,40,41,62,36,46,47,35,48)] <- TRUE
-Agriculture <- raster(Agriculture)
-
-Development <- cover_2017
-Development[Development %notin% c(24,25,30)] <- FALSE
-Development[Development %in% c(24,25,30)] <- TRUE
-Development <- raster(Development)
-
-Water <- cover_2017
-Water[Water %notin% c(11,26,33)] <- FALSE
-Water[Water %in% c(11,26,33)] <- TRUE
-Water <- raster(Water)
-
-covers <- list(Native_Forest = Native_Forest,
-               Forestry = Forestry,
-               Pasture = Pasture,
-               Agriculture = Agriculture,
-               Development = Development,
-               Water = Water)
-
-#free up environment space
-rm(Native_Forest, Forestry, Pasture, Agriculture, Development, Water, cover_2017)
-
-
-
-#RSF fit for 2017 ---- 
-# Anthony, Bumpus, Cate, Christoffer, Elaine, Jackson, Kyle, Little Rick, Makao, Puji, and Segre
+# 2017 ---- 
+# create a list to house results
 RSF_17 <- list()
+# for.loop for running RSFs
 for(i in 1:length(DATA_17)){
-  
   #extract individual
   DATA <- DATA_17[[i]]
   
@@ -117,75 +64,34 @@ for(i in 1:length(DATA_17)){
   #ensure projections are the same
   ctmm::projection(DATA) <- ctmm::projection(AKDE)
   
+  # keep track of individual
+  cat(bgMagenta(paste("RSF for", DATA@info[1]), "\n"))
+  
   #fit RSFs
-  RSF_17[[i]] <- rsf.select(DATA, UD = AKDE, R = covers)
+  IND <- rsf.select(DATA, UD = AKDE, R = covers_2017,
+                    error = 0.055, cores = 1, max.mem = "1.5 Gb")
+  RSF_17[[i]] <- IND
+  
+  # save individual results in case of crash
+  save(IND, file = paste0("./RESULTS/RSFs_FOREST/OLD_0.055_1.5/Individual/2017_", DATA@info[1], ".rda"))
+  
+} # close the loop
 
-} #close the loop
-
-#transfer names to new RSF list
+# transfer names to new RSF list
 names(RSF_17) <- names(DATA_17)
 
-#save output
-save(RSF_17, file = "~/Giant_Anteater_Orphan/FIXED/Results/RSFs/RSF_2017.rda")
+# save output
+save(RSF_17, file = "./RESULTS/RSFs_FOREST/OLD_0.055_1.5/RSF_2017.rda") 
 
-#free environment space
-rm(RSF_17, DATA_17, AKDE_17) 
-
-
-
-
-#converting Spatrasters to rasterclasses 2018 ----
-cover_2018 <- rast("~/Giant_Anteater_Orphan/Data/Mapbiomas/2018_cover.tif")
-Native_Forest <- cover_2018
-Native_Forest[Native_Forest %notin% c(1,3,4,5,6,49,29)] <- FALSE
-Native_Forest[Native_Forest %in% c(1,3,4,5,6,49,29)] <- TRUE
-plot(Native_Forest)
-Native_Forest <- raster(Native_Forest)
-
-Forestry <- cover_2018
-Forestry[Forestry %notin% c(9)] <- FALSE
-Forestry[Forestry %in% c(9)] <- TRUE
-plot(Forestry)
-Forestry <- raster(Forestry)
-
-Pasture <- cover_2018
-Pasture[Pasture %notin% c(12,15)] <- FALSE
-Pasture[Pasture %in% c(12,15)] <- TRUE
-plot(Pasture)
-Pasture <- raster(Pasture)
-
-Agriculture <- cover_2018
-Agriculture[Agriculture %notin% c(18,19,20,21,39,40,41,62,36,46,47,35,48)] <- FALSE
-Agriculture[Agriculture %in% c(18,19,20,21,39,40,41,62,36,46,47,35,48)] <- TRUE
-plot(Agriculture)
-Agriculture <- raster(Agriculture)
-
-Development <- cover_2018
-Development[Development %notin% c(24,25,30)] <- FALSE
-Development[Development %in% c(24,25,30)] <- TRUE
-plot(Development)
-Development <- raster(Development)
-
-Water <- cover_2018
-Water[Water %notin% c(11,26,33)] <- FALSE
-Water[Water %in% c(11,26,33)] <- TRUE
-Water <- raster(Water)
-
-covers <- list(Native_Forest = Native_Forest,
-               Forestry = Forestry,
-               Pasture = Pasture,
-               Agriculture = Agriculture,
-               Development = Development,
-               Water = Water)
-
-#free environment space
-rm(Native_Forest, Forestry, Pasture, Agriculture, Development, Water, cover_2018) #free environment space
+# free environment space
+rm(RSF_17, DATA_17, AKDE_17, covers, cover_2017)
+gc()
 
 
-
-#RSF fit for 2018 ----
-#Alexander, Annie, Beto, Hannah, Jane, Larry, Luigi, Margaret, Maria, Redi, Rodolfo, Sherom, and Thomas
+# 2018 ----
+# create a list to house results
 RSF_18 <- list()
+# for.loop for running RSFs
 for(i in 1:length(DATA_18)){
   #extract individual
   DATA <- DATA_18[[i]]
@@ -196,68 +102,34 @@ for(i in 1:length(DATA_18)){
   #ensure projections are the same
   ctmm::projection(DATA) <- ctmm::projection(AKDE)
   
+  # keep track of individual
+  cat(bgMagenta(paste("RSF for", DATA@info[1]), "\n"))
+  
   #fit RSF
-  RSF_18[[i]] <- rsf.select(DATA, UD = AKDE, R = covers)
+  IND <- rsf.select(DATA, UD = AKDE, R = covers_2018, 
+                    error = 0.055, cores = 1, max.mem = "1.5 Gb")
+  RSF_18[[i]] <- IND
+  
+  # save individual results in case of crash
+  save(IND, file = paste0("./RESULTS/RSFs_FOREST/OLD_0.055_1.5/Individual/2018_", DATA@info[1], ".rda"))
   
 } #close the loop
 
-#transfer names to new list of RSFs
+#transfer names to new RSF list
 names(RSF_18) <- names(DATA_18)
 
 #save output
-save(RSF_18, file = "~/Giant_Anteater_Orphan/FIXED/Results/RSFs/RSF_2018.rda")
+save(RSF_18, file = "./RESULTS/RSFs_FOREST/OLD_0.055_1.5/RSF_2018.rda")
 
 #free up environment space
-rm(RSF_18, DATA_18, AKDE_18) 
+rm(RSF_18, DATA_18, AKDE_18, covers, cover_2018, CRS_rast) 
+gc()
 
 
-
-#converting Spatrasters to rasterclasses 2019 ----
-cover_2019 <- rast("~/Giant_Anteater_Orphan/FIXED/Data/Mapbiomas/2019_cover.tif")
-Native_Forest <- cover_2019
-Native_Forest[Native_Forest %notin% c(1,3,4,5,6,49,29)] <- FALSE
-Native_Forest[Native_Forest %in% c(1,3,4,5,6,49,29)] <- TRUE
-Native_Forest <- raster(Native_Forest)
-
-Forestry <- cover_2019
-Forestry[Forestry %notin% c(9)] <- FALSE
-Forestry[Forestry %in% c(9)] <- TRUE
-Forestry <- raster(Forestry)
-
-Pasture <- cover_2019
-Pasture[Pasture %notin% c(12,15)] <- FALSE 
-Pasture[Pasture %in% c(12,15)] <- TRUE
-Pasture <- raster(Pasture)
-
-Agriculture <- cover_2019
-Agriculture[Agriculture %notin% c(18,19,20,21,39,40,41,62,36,46,47,35,48)] <- FALSE
-Agriculture[Agriculture %in% c(18,19,20,21,39,40,41,62,36,46,47,35,48)] <- TRUE
-Agriculture <- raster(Agriculture)
-
-Development <- cover_2019
-Development[Development %notin% c(24,25,30)] <- FALSE
-Development[Development %in% c(24,25,30)] <- TRUE
-Development <- raster(Development)
-
-Water <- cover_2019
-Water[Water %notin% c(11,26,33)] <- FALSE
-Water[Water %in% c(11,26,33)] <- TRUE
-Water <- raster(Water)
-
-covers <- list(Native_Forest = Native_Forest,
-               Forestry = Forestry,
-               Pasture = Pasture,
-               Agriculture = Agriculture,
-               Development = Development,
-               Water = Water)
-
-#free environment space
-rm(Native_Forest, Forestry, Pasture, Agriculture, Development, Water, cover_2019) 
-
-
-#RSF fit for 2019 ----
-#Arya, Capitu, Dumbo_1, and Dumbo_2
+# 2019 ----
+# create a list to house results
 RSF_19 <- list()
+# for.loop for running RSFs
 for(i in 1:length(DATA_19)){
   #extract individual
   DATA <- DATA_19[[i]]
@@ -268,146 +140,34 @@ for(i in 1:length(DATA_19)){
   #ensure projections are the same
   ctmm::projection(DATA) <- ctmm::projection(AKDE)
   
+  # keep track of individual
+  cat(bgMagenta(paste("RSF for", DATA@info[1]), "\n"))
+  
   #fit RSF
-  RSF_19[[i]] <- rsf.select(DATA, UD = AKDE, R = covers)
+  IND <- rsf.select(DATA, UD = AKDE, R = covers_2019, 
+                    error = 0.055, cores = 1, max.mem = "1.5 Gb")
+  RSF_19[[i]] <- IND
+  
+  # save individual results in case of crash
+  save(IND, file = paste0("./RESULTS/RSFs_FOREST/OLD_0.055_1.5/Individual/2019_", DATA@info[1], ".rda"))
   
 } #close the loop
 
-#transfer names to new list of RSFs
+#transfer names to new RSF list
 names(RSF_19) <- names(DATA_19)
 
 #save output
-save(RSF_19, file = "~/Giant_Anteater_Orphan/FINAL/RESULTS/RSFs/RSF_2019.rda")
-
+save(RSF_19, file = "./RESULTS/RSFs_FOREST/OLD_0.055_1.5/RSF_2019.rda") 
 #free environment space
-rm(RSF_19, DATA_19, AKDE_19) 
+rm(RSF_19, DATA_19, AKDE_19, covers, cover_2019, CRS_rast) 
+gc()
 
 
-
-
-
-#converting Spatrasters to rasterclasses 2020 ----
-cover_2020 <- rast("~/Giant_Anteater_Orphan/FIXED/Data/Mapbiomas/2020_cover.tif")
-Native_Forest <- cover_2020
-Native_Forest[Native_Forest %notin% c(1,3,4,5,6,49,29)] <- FALSE
-Native_Forest[Native_Forest %in% c(1,3,4,5,6,49,29)] <- TRUE
-Native_Forest <- raster(Native_Forest)
-
-Forestry <- cover_2020
-Forestry[Forestry %notin% c(9)] <- FALSE
-Forestry[Forestry %in% c(9)] <- TRUE
-Forestry <- raster(Forestry)
-
-Pasture <- cover_2020
-Pasture[Pasture %notin% c(12,15)] <- FALSE 
-Pasture[Pasture %in% c(12,15)] <- TRUE
-Pasture <- raster(Pasture)
-
-Agriculture <- cover_2020
-Agriculture[Agriculture %notin% c(18,19,20,21,39,40,41,62,36,46,47,35,48)] <- FALSE
-Agriculture[Agriculture %in% c(18,19,20,21,39,40,41,62,36,46,47,35,48)] <- TRUE
-Agriculture <- raster(Agriculture)
-
-Development <- cover_2020
-Development[Development %notin% c(24,25,30)] <- FALSE
-Development[Development %in% c(24,25,30)] <- TRUE
-Development <- raster(Development)
-
-Water <- cover_2020
-Water[Water %notin% c(11,26,33)] <- FALSE
-Water[Water %in% c(11,26,33)] <- TRUE
-Water <- raster(Water)
-
-covers <- list(Native_Forest = Native_Forest,
-               Forestry = Forestry,
-               Pasture = Pasture,
-               Agriculture = Agriculture,
-               Development = Development,
-               Water = Water)
-
-#free environment space
-rm(Native_Forest, Forestry, Pasture, Agriculture, Development, Water, cover_2020) 
-
-#RSF fit for 2020 ----
-#Tim_1
-RSF_20 <- list()
-for(i in 1:length(DATA_20)){
-  
-  #extract individual
-  DATA <- DATA_20[[i]]
-  
-  #extract AKDE
-  AKDE <- AKDE_20[[i]]
-  
-  #ensure projections are the same
-  ctmm::projection(DATA) <- ctmm::projection(AKDE)
-  
-  #fit RSF
-  RSF_20[[i]] <- rsf.select(DATA, UD = AKDE, R = covers)
-  
-} #close the loop
-
-#transfer names to new list of RSFs
-names(RSF_20) <- names(DATA_20)
-
-#save output
-save(RSF_20, file = "~/Giant_Anteater_Orphan/FINAL/RESULTS/RSFs/RSF_2020.rda")
-
-#free environment space
-rm(RSF_20, AKDE_20, DATA_20)
-
-
-
-
-
-#converting Spatrasters to rasterclasses 2021 ----
-cover_2021 <- rast("~/Giant_Anteater_Orphan/FIXED/Data/Mapbiomas/2021_cover.tif")
-Native_Forest <- cover_2021
-Native_Forest[Native_Forest %notin% c(1,3,4,5,6,49,29)] <- FALSE
-Native_Forest[Native_Forest %in% c(1,3,4,5,6,49,29)] <- TRUE
-Native_Forest <- raster(Native_Forest)
-
-Forestry <- cover_2021
-Forestry[Forestry %notin% c(9)] <- FALSE
-Forestry[Forestry %in% c(9)] <- TRUE
-Forestry <- raster(Forestry)
-
-Pasture <- cover_2021
-Pasture[Pasture %notin% c(12,15)] <- FALSE
-Pasture[Pasture %in% c(12,15)] <- TRUE
-Pasture <- raster(Pasture)
-
-Agriculture <- cover_2021
-Agriculture[Agriculture %notin% c(18,19,20,21,39,40,41,62,36,46,47,35,48)] <- FALSE
-Agriculture[Agriculture %in% c(18,19,20,21,39,40,41,62,36,46,47,35,48)] <- TRUE
-Agriculture <- raster(Agriculture)
-
-Development <- cover_2021
-Development[Development %notin% c(24,25,30)] <- FALSE
-Development[Development %in% c(24,25,30)] <- TRUE
-Development <- raster(Development)
-
-Water <- cover_2021
-Water[Water %notin% c(11,26,33)] <- FALSE
-Water[Water %in% c(11,26,33)] <- TRUE
-Water <- raster(Water)
-
-covers <- list(Native_Forest = Native_Forest,
-               Forestry = Forestry,
-               Pasture = Pasture,
-               Agriculture = Agriculture,
-               Development = Development,
-               Water = Water)
-
-#free environment space
-rm(Native_Forest, Forestry, Pasture, Agriculture, Development, Water, cover_2021) 
-
-
-#RSF fit for 2021 ----
-#Renee_1, Renee_2, Renee_3, Renee_4, Tim_2
+# 2021 ----
+# create a list to house results
 RSF_21 <- list()
+# for.loop for running RSFs
 for(i in 1:length(DATA_21)){
-  
   #extract individual
   DATA <- DATA_21[[i]]
   
@@ -417,72 +177,34 @@ for(i in 1:length(DATA_21)){
   #ensure projections are the same
   ctmm::projection(DATA) <- ctmm::projection(AKDE)
   
-  #fit RSF
-  RSF_21[[i]] <- rsf.select(DATA, UD = AKDE, R = covers) 
+  # keep track of individual
+  cat(bgMagenta(paste("RSF for", DATA@info[1]), "\n"))
   
+  #fit RSF
+  IND <- rsf.select(DATA, UD = AKDE, R = covers_2021, 
+                    error = 0.055, cores = 1, max.mem = "1.5 Gb")
+  RSF_21[[i]] <- IND
+  
+  # save individual results in case of crash
+  save(IND, file = paste0("./RESULTS/RSFs_FOREST/OLD_0.055_1.5/Individual/2021_", DATA@info[1], ".rda"))
   
 } #close the loop
 
-#transfer names to new list of RSFs
+#transfer names to new RSF list
 names(RSF_21) <- names(DATA_21)
 
 #save output
-save(RSF_21, file = "~/Giant_Anteater_Orphan/FINAL/RESULTS/RSFs/RSF_2021.rda")
-
+save(RSF_21, file = "./RESULTS/RSFs_FOREST/OLD_0.055_1.5/RSF_2021.rda")
 #free environment space
-rm(RSF_21, DATA_21, AKDE_21) 
+rm(RSF_21, DATA_21, AKDE_21, covers, cover_2021, CRS_rast) 
+gc()
 
 
-
-
-
-#converting Spatrasters to rasterclasses 2017 ----
-cover_2022 <- rast("~/Giant_Anteater_Orphan/FIXED/Data/Mapbiomas/2022_cover.tif")
-Native_Forest <- cover_2022
-Native_Forest[Native_Forest %notin% c(1,3,4,5,6,49,29)] <- FALSE
-Native_Forest[Native_Forest %in% c(1,3,4,5,6,49,29)] <- TRUE
-Native_Forest <- raster(Native_Forest)
-
-Forestry <- cover_2022
-Forestry[Forestry %notin% c(9)] <- FALSE
-Forestry[Forestry %in% c(9)] <- TRUE
-Forestry <- raster(Forestry)
-
-Pasture <- cover_2022
-Pasture[Pasture %notin% c(12,15)] <- FALSE
-Pasture[Pasture %in% c(12,15)] <- TRUE
-Pasture <- raster(Pasture)
-
-Agriculture <- cover_2022
-Agriculture[Agriculture %notin% c(18,19,20,21,39,40,41,62,36,46,47,35,48)] <- FALSE
-Agriculture[Agriculture %in% c(18,19,20,21,39,40,41,62,36,46,47,35,48)] <- TRUE
-Agriculture <- raster(Agriculture)
-
-Development <- cover_2022
-Development[Development %notin% c(24,25,30)] <- FALSE
-Development[Development %in% c(24,25,30)] <- TRUE
-Development <- raster(Development)
-
-Water <- cover_2022
-Water[Water %notin% c(11,26,33)] <- FALSE
-Water[Water %in% c(11,26,33)] <- TRUE
-Water <- raster(Water)
-
-covers <- list(Native_Forest = Native_Forest,
-               Forestry = Forestry,
-               Pasture = Pasture,
-               Agriculture = Agriculture,
-               Development = Development,
-               Water = Water)
-
-#free environment space
-rm(Native_Forest, Forestry, Pasture, Agriculture, Development, Water, cover_2022) #free environment space
-
-#RSF fit for 2022 ----
-#Cláudio, Colete, Heather, Juju_1, Juju_2, Mulan, Peter, Rita, Tim_3
+# 2022 ----
+# create a list to house results
 RSF_22 <- list()
+# for.loop for running RSFs
 for(i in 1:length(DATA_22)){
-  
   #extract individual
   DATA <- DATA_22[[i]]
   
@@ -492,70 +214,35 @@ for(i in 1:length(DATA_22)){
   #ensure projections are the same
   ctmm::projection(DATA) <- ctmm::projection(AKDE)
   
-  #fit RSF
-  RSF_22[[i]] <- rsf.select(DATA, UD = AKDE, R = covers)
+  # keep track of individual
+  cat(bgMagenta(paste("RSF for", DATA@info[1]), "\n"))
   
+  #fit RSF
+  IND <- rsf.select(DATA, UD = AKDE, R = covers_2022, 
+                    error = 0.055, cores = 1, max.mem = "1.5 Gb")
+  RSF_22[[i]] <- IND
+  
+  # save individual results in case of crash
+  save(IND, file = paste0("./RESULTS/RSFs_FOREST/OLD_0.055_1.5/Individual/2022_", DATA@info[1], ".rda"))
   
 } #close the loop
 
-#transfer names to new list of RSFs
+#transfer names to new RSF list
 names(RSF_22) <- names(DATA_22)
 
 #save output
-save(RSF_22, file = "~/Giant_Anteater_Orphan/FINAL/RESULTS/RSFs/RSF_2022.rda")
+save(RSF_22, file = "./RESULTS/RSFs_FOREST/OLD_0.055_1.5/RSF_2022.rda") 
 
 #free environment space
-rm(RSF_22, DATA_22, AKDE_22) 
+rm(RSF_23, DATA_23, AKDE_23, covers, CRS_rast, cover_2023)
+gc()
 
 
-#converting Spatrasters to rasterclasses 2017 ----
-cover_2023 <- rast("~/Giant_Anteater_Orphan/FIXED/Data/Mapbiomas/2023_cover.tif")
-Native_Forest <- cover_2023
-Native_Forest[Native_Forest %notin% c(1,3,4,5,6,49,29)] <- FALSE
-Native_Forest[Native_Forest %in% c(1,3,4,5,6,49,29)] <- TRUE
-Native_Forest <- raster(Native_Forest)
-
-Forestry <- cover_2023
-Forestry[Forestry %notin% c(9)] <- FALSE
-Forestry[Forestry %in% c(9)] <- TRUE
-Forestry <- raster(Forestry)
-
-Pasture <- cover_2023
-Pasture[Pasture %notin% c(12,15)] <- FALSE
-Pasture[Pasture %in% c(12,15)] <- TRUE
-Pasture <- raster(Pasture)
-
-Agriculture <- cover_2023
-Agriculture[Agriculture %notin% c(18,19,20,21,39,40,41,62,36,46,47,35,48)] <- FALSE
-Agriculture[Agriculture %in% c(18,19,20,21,39,40,41,62,36,46,47,35,48)] <- TRUE
-Agriculture <- raster(Agriculture)
-
-Development <- cover_2023
-Development[Development %notin% c(24,25,30)] <- FALSE
-Development[Development %in% c(24,25,30)] <- TRUE
-Development <- raster(Development)
-
-Water <- cover_2023
-Water[Water %notin% c(11,26,33)] <- FALSE
-Water[Water %in% c(11,26,33)] <- TRUE
-Water <- raster(Water)
-
-covers <- list(Native_Forest = Native_Forest,
-               Forestry = Forestry,
-               Pasture = Pasture,
-               Agriculture = Agriculture,
-               Development = Development,
-               Water = Water)
-
-#free environment space
-rm(Native_Forest, Forestry, Pasture, Agriculture, Development, Water, cover_2023)
-
-
-#RSF fit for 2023 ----
-#Bahia, Beezie, Bella, Dom, Erick, George, Jacobina, Nancy, Nayeli
+# 2023 ----
+# create a list to house results
 RSF_23 <- list()
+# for.loop for running RSFs
 for(i in 1:length(DATA_23)){
-  
   #extract individual
   DATA <- DATA_23[[i]]
   
@@ -565,39 +252,67 @@ for(i in 1:length(DATA_23)){
   #ensure projections are the same
   ctmm::projection(DATA) <- ctmm::projection(AKDE)
   
+  # keep track of individual
+  cat(bgMagenta(paste("RSF for", DATA@info[1]), "\n"))
+  
   #fit RSF
-  RSF_22[[i]] <- rsf.select(DATA, UD = AKDE, R = covers)
+  IND <- rsf.select(DATA, UD = AKDE, R = covers_2023, 
+                    error = 0.055, cores = 1, max.mem = "1.5 Gb")
+  RSF_23[[i]] <- IND
   
-  
+  # save individual results in case of crash
+  save(IND, file = paste0("./RESULTS/RSFs_FOREST/OLD_0.055_1.5/Individual/2023_", DATA@info[1], ".rda"))
+
 } #close the loop
 
-#transfer names to new list of RSFs
+#transfer names to new RSF list
 names(RSF_23) <- names(DATA_23)
 
 #save output
-save(RSF_23, file = "~/Giant_Anteater_Orphan/FINAL/RESULTS/RSFs/RSF_2023.rda")
+save(RSF_23, file = "./RESULTS/RSFs_FOREST/OLD_0.055_1.5/RSF_2023.rda") 
+
+#free environment space
+rm(RSF_23, DATA_23, AKDE_23, covers, CRS_rast, cover_2023)
+gc()
 
 
+# 2024 ----
+# create a list to house results
+RSF_24 <- list()
+# for.loop for running RSFs
+for(i in 1:length(DATA_24)){
+  #extract individual
+  DATA <- DATA_24[[i]]
+  
+  #extract AKDE
+  AKDE <- AKDE_24[[i]]
+  
+  #ensure projections are the same
+  ctmm::projection(DATA) <- ctmm::projection(AKDE)
+  
+  # keep track of individual
+  cat(bgMagenta(paste("RSF for", DATA@info[1]), "\n"))
+  
+  #fit RSF
+  IND <- rsf.select(DATA, UD = AKDE, R = covers_2024, 
+                    error = 0.055, cores = 1, max.mem = "1.5 Gb")
+  RSF_24[[i]] <- IND
+  
+  # save individual results in case of crash
+  save(IND, file = paste0("./RESULTS/RSFs_FOREST/OLD_0.055_1.5/Individual/2024_", DATA@info[1], ".rda"))
+  
+} #close the loop
+
+#transfer names to new RSF list
+names(RSF_24) <- names(DATA_24)
+#save output
+save(RSF_24, file = "./RESULTS/RSFs_FOREST/OLD_0.055_1.5/RSF_2024.rda") 
+#free environment space
+rm(DATA_24, AKDE_24, covers, CRS_rast, cover_2024)
+gc()
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+# set warnings to default again
+options(warn = 0)
 
 
