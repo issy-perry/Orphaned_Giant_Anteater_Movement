@@ -111,7 +111,7 @@ rm(HR_J, SPEED_J, VELOCITY_J, HR_A, SPEED_A, VELOCITY_A, WILD)
 Movement_df <- Movement_df %>%
   arrange(ID)
 
-# convert ID values to numeric for plotting (needs to be numeric when on the y-axis)
+# ensure IDs are characters for plotting
 Movement_df$ID <- as.character(Movement_df$ID) 
 
 # plot differences in home range size 
