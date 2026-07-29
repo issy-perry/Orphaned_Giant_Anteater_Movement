@@ -47,6 +47,9 @@ AKDE_24 <- AKDE_orphan[c("Dom")] #rm "Bahia","Beezie", "Jacobina", "Nayeli"
 # clear up environment space
 rm(DATA_wild, DATA_orphan, AKDE_orphan, AKDE_wild) 
 
+# call raster downloading and classifying scripts to run
+source("./SCRIPTS/0000 Classifying Rasters.R")
+
 # ensure R provides a warning before the loop is done (so that we know what individuals are problematic (if any are) so time is not wasted)
 options(warn = 1)
 
