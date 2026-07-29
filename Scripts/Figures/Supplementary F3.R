@@ -109,7 +109,7 @@ Movement_df[Movement_df$ID %in% c("Anthony", "Christoffer", "Jackson", "Kyle", "
 
 # compare home range size between sexes
 HR <- ggplot() +
-  #total wild-raised
+  # female orphaned
   geom_pointrange(data = subset(Movement_df, Status == "Orphaned" & Sex == "Female"), 
                   aes(x = HR_est, y = ID, xmin = HR_low, xmax = HR_high, color = "Female"), 
                   shape = 17) +
@@ -117,7 +117,7 @@ HR <- ggplot() +
              color = "#E823A1", lty = "dashed", lwd = 1) + #area_est
   geom_rect(data = META_df[1,], aes(xmin = HR_low, xmax = HR_high, ymin = -Inf, ymax = Inf, color = "Female"), 
             color = NA, fill = "#E823A1", alpha = 0.15) +
-  #total orphaned
+  # male orphaned
   geom_pointrange(data = subset(Movement_df, Status == "Orphaned" & Sex == "Male"), 
                   aes(x = HR_est, y = ID, xmin = HR_low, xmax = HR_high, color = "Male"), 
                   shape = 15) +
@@ -145,7 +145,7 @@ HR <- ggplot() +
 
 # compare directional persistence between sexes
 tauvelocity <- ggplot() +
-  #total wild-raised
+  # female orphaned
   geom_pointrange(data = subset(Movement_df, Status == "Orphaned" & Sex == "Female"), 
                   aes(x = τvelocity_est, y = ID, xmin = τvelocity_low, xmax = τvelocity_high, color = "Female"), 
                   shape = 17) +
@@ -154,7 +154,7 @@ tauvelocity <- ggplot() +
   geom_rect(data = META_df[1,], 
             aes(xmin = τvelocity_low, xmax = τvelocity_high, ymin = -Inf, ymax = Inf, color = "Female"), 
             color = NA, fill = "#E823A1", alpha = 0.15) +
-  #total orphaned
+  # male orphaned
   geom_pointrange(data = subset(Movement_df, Status == "Orphaned" & Sex == "Male"), 
                   aes(x = τvelocity_est, y = ID, xmin = τvelocity_low, xmax = τvelocity_high, color = "Male"), 
                   shape = 15) +
@@ -181,7 +181,7 @@ tauvelocity <- ggplot() +
 
 # compare speed between sexes
 speed <- ggplot() +
-  #total wild-raised
+  # female orphaned
   geom_pointrange(data = subset(Movement_df, Status == "Orphaned" & Sex == "Female" & is.finite(Mean_Speed_est) & is.finite(Mean_Speed_low) & is.finite(Mean_Speed_high)), 
                   aes(x = Mean_Speed_est, y = ID, xmin = Mean_Speed_low, xmax = Mean_Speed_high, color = "Female"), 
                   shape = 17) +
@@ -190,7 +190,7 @@ speed <- ggplot() +
   geom_rect(data = META_df[1,], 
             aes(xmin = speed_low, xmax = speed_high, ymin = -Inf, ymax = Inf, color = "Female"), 
             color = NA, fill = "#E823A1", alpha = 0.15) +
-  #total orphaned
+  # male orphaned
   geom_pointrange(data = subset(Movement_df, Status == "Orphaned" & Sex == "Male" & is.finite(Mean_Speed_est) & is.finite(Mean_Speed_low) & is.finite(Mean_Speed_high)), 
                   aes(x = Mean_Speed_est, y = ID, xmin = Mean_Speed_low, xmax = Mean_Speed_high, color = "Male"), 
                   shape = 15) +
