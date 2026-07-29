@@ -1,26 +1,28 @@
-#load packages
+# load packages
 library(ctmm) #movement
 library(dplyr)
 library(ggplot2) #making plots
 library(ggpubr) #arranging plots in multiples
 library(tidyr) #drop_na function
 
+# load results
 load("./RESULTS/RSFs_FOREST/OLD_0.055_1.5/Mean_RSF_all_df.rda")
-mean_all$Residence <- NA
+
+# rearrange the dataframe to make plotting smoother
 O_W <- mean_all %>% 
-  select(ID, Residence, contains("_low")) %>% 
-  pivot_longer(cols = -c(ID, Residence), names_to = "type", values_to = "low") %>% 
+  select(ID, contains("_low")) %>% 
+  pivot_longer(cols = -c(ID), names_to = "type", values_to = "low") %>% 
   mutate(type = gsub("_low", "", type)) %>% 
   full_join(mean_all %>% 
-              select(ID, Residence, contains("_est")) %>% 
-              pivot_longer(cols = -c(ID, Residence), names_to = "type", values_to = "est") %>% 
+              select(ID, contains("_est")) %>% 
+              pivot_longer(cols = -c(ID), names_to = "type", values_to = "est") %>% 
               mutate(type = gsub("_est", "", type)), 
-            by = c("ID", "Residence", "type")) %>% 
+            by = c("ID", "type")) %>% 
   full_join(mean_all %>% 
-              select(ID, Residence, contains("_high")) %>% 
-              pivot_longer(cols = -c(ID, Residence), names_to = "type", values_to = "high") %>% 
+              select(ID, contains("_high")) %>% 
+              pivot_longer(cols = -c(ID), names_to = "type", values_to = "high") %>% 
               mutate(type = gsub("_high", "", type)), 
-            by = c("ID", "Residence", "type")) %>% 
+            by = c("ID", "type")) %>% 
   
   #23C3A8
   
@@ -51,28 +53,24 @@ ggsave("./FIGURES/Revised/Figure_3_with_development.png", width = 8.5, height = 
 
 
 
-
-
-
-
-
 # without development ------
-
+# remove development columns since there are no results (and thus no selection by ctmm's standards)
 mean_all[,c("Development_low", "Development_est", "Development_high")] <- NULL
+# rearrange the dataframe to make plotting smoother
 O_W <- mean_all %>% 
-  select(ID, Residence, contains("_low")) %>% 
-  pivot_longer(cols = -c(ID, Residence), names_to = "type", values_to = "low") %>% 
+  select(ID, contains("_low")) %>% 
+  pivot_longer(cols = -c(ID,), names_to = "type", values_to = "low") %>% 
   mutate(type = gsub("_low", "", type)) %>% 
   full_join(mean_all %>% 
-              select(ID, Residence, contains("_est")) %>% 
-              pivot_longer(cols = -c(ID, Residence), names_to = "type", values_to = "est") %>% 
+              select(ID,  contains("_est")) %>% 
+              pivot_longer(cols = -c(ID), names_to = "type", values_to = "est") %>% 
               mutate(type = gsub("_est", "", type)), 
-            by = c("ID", "Residence", "type")) %>% 
+            by = c("ID", "type")) %>% 
   full_join(mean_all %>% 
-              select(ID, Residence, contains("_high")) %>% 
-              pivot_longer(cols = -c(ID, Residence), names_to = "type", values_to = "high") %>% 
+              select(ID, contains("_high")) %>% 
+              pivot_longer(cols = -c(ID), names_to = "type", values_to = "high") %>% 
               mutate(type = gsub("_high", "", type)), 
-            by = c("ID", "Residence", "type")) %>% 
+            by = c("ID", "type")) %>% 
   
   
   
@@ -100,4 +98,7 @@ plot(O_W)
 
 ggsave("./FIGURES/Revised/Figure_3_no_development.png", width = 8.5, height = 5.5, units = "in", 
        dpi = 300, bg = "transparent")
+
+
+
 
