@@ -13,12 +13,12 @@ library(sf)
 library(crayon) #adding colored bands to printed announcements for tictoc
 
 # load data
-load("./DATA/Wild_raised_tel_data/Data_telemetry.rda") #wild-raised 
-load("./DATA/Orphaned_tel_data/Data_telemetry.rda") #orphaned 
+load("./DATA/Wild_raised_tel_data/Data_telemetry_RR.rda") #wild-raised 
+load("./DATA/Orphaned_tel_data/Data_telemetry_RR.rda") #orphaned 
 
 #load UDs
-load("./RESULTS/AKDEs/UDs_orphan.rda") #orphaned 
-load("./RESULTS/AKDEs/UDs_wild.rda") #wild-raised 
+load("./RESULTS/AKDEs/UDs_orphan_RR.rda") #orphaned 
+load("./RESULTS/AKDEs/UDs_wild_RR.rda") #wild-raised 
 
 
 #need to separate the data depending on when the individual was monitored so that the results for land selection are as accurate as possible
