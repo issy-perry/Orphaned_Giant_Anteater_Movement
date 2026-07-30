@@ -14,11 +14,9 @@ load("./RESULTS/AKDEs/UDs_wild_RR.rda")
 load("./RESULTS/Fits/Fits_wild_RR.rda")
 load("./RESULTS/Speed/Speed_wild_RR.rda")
 # orphaned population
-load("./RESULTS/AKDEs/UDs_wild_RR.rda")
-load("./RESULTS/Fits/Fits_wild_RR.rda")
-load("./RESULTS/Speed/Speed_wild_RR.rda")
-
-
+load("./RESULTS/AKDEs/UDs_orphan_RR.rda")
+load("./RESULTS/Fits/Fits_orphan_RR.rda")
+load("./RESULTS/Speed/Speed_orphan_RR.rda")
 
 # orphaned population ----
 # create dataframes to hold results for whole population 
