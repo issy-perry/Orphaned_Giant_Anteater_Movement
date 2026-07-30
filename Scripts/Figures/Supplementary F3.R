@@ -10,7 +10,7 @@ load("./RESULTS/META_average_RR_df.rda")
 load("./RESULTS/Movement_model_RR_df.rda")
 load("./RESULTS/Fits/Fits_orphan_RR.rda")
 load("./RESULTS/AKDEs/UDs_orphan_RR.rda") 
-load("./RESULTS/Speed/Speed_orphans_RR.rda") 
+load("./RESULTS/Speed/Speed_orphan_RR.rda") 
 
 
 # separate results based on sex
