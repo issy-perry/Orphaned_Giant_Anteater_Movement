@@ -119,16 +119,16 @@ HR <- ggplot() +
   geom_pointrange(data = subset(Movement_df, Status == "Wild-raised" & Sex == "Female"), 
                   aes(x = HR_est, y = ID, xmin = HR_low, xmax = HR_high, color = "Female"), 
                   shape = 17) +
-  geom_vline(xintercept = META_df[3,"HR_est"],
+  geom_vline(xintercept = META_df[1,"HR_est"],
              color = "#E823A1", lty = "dashed", lwd = 1) + #area_est
-  geom_rect(data = META_df[3,], aes(xmin = HR_low, xmax = HR_high, ymin = -Inf, ymax = Inf, color = "Female"), 
+  geom_rect(data = META_df[1,], aes(xmin = HR_low, xmax = HR_high, ymin = -Inf, ymax = Inf, color = "Female"), 
             color = NA, fill = "#E823A1", alpha = 0.15) +
   # male wild-raised
   geom_pointrange(data = subset(Movement_df, Status == "Wild-raised" & Sex == "Male"), 
                   aes(x = HR_est, y = ID, xmin = HR_low, xmax = HR_high, color = "Male"), 
                   shape = 15) +
-  geom_vline(xintercept = META_df[4,"HR_est"], color = "#2919EC", lty = "dashed", lwd = 1) + #area_est
-  geom_rect(data = META_df[4,], 
+  geom_vline(xintercept = META_df[2,"HR_est"], color = "#2919EC", lty = "dashed", lwd = 1) + #area_est
+  geom_rect(data = META_df[2,], 
             aes(xmin = HR_low, xmax = HR_high, ymin = -Inf, ymax = Inf, color = "Male"), 
             color = NA, fill = "#2919EC", alpha = 0.1) +
   scale_color_manual("Sex", 
@@ -155,18 +155,18 @@ tauvelocity <- ggplot() +
   geom_pointrange(data = subset(Movement_df, Status == "Wild-raised" & Sex == "Female"), 
                   aes(x = τvelocity_est, y = ID, xmin = τvelocity_low, xmax = τvelocity_high, color = "Female"), 
                   shape = 17) +
-  geom_vline(xintercept = META_df[3,"τvelocity_est"], 
+  geom_vline(xintercept = META_df[1,"τvelocity_est"], 
              color = "#E823A1", lty = "dashed", lwd = 1) + #area_est
-  geom_rect(data = META_df[3,], 
+  geom_rect(data = META_df[1,], 
             aes(xmin = τvelocity_low, xmax = τvelocity_high, ymin = -Inf, ymax = Inf, color = "Female"), 
             color = NA, fill = "#E823A1", alpha = 0.15) +
   # male wild-raised
   geom_pointrange(data = subset(Movement_df, Status == "Wild-raised" & Sex == "Male"), 
                   aes(x = τvelocity_est, y = ID, xmin = τvelocity_low, xmax = τvelocity_high, color = "Male"), 
                   shape = 15) +
-  geom_vline(xintercept = META_df[4,"τvelocity_est"], 
+  geom_vline(xintercept = META_df[2,"τvelocity_est"], 
              color = "#2919EC", lty = "dashed", lwd = 1) + #area_est
-  geom_rect(data = META_df[4,], 
+  geom_rect(data = META_df[2,], 
             aes(xmin = τvelocity_low, xmax = τvelocity_high, ymin = -Inf, ymax = Inf, color = "Male"), 
             color = NA, fill = "#2919EC", alpha = 0.15) +
   scale_color_manual("Sex", values = c("Female" = "#E823A1", "Male" = "#2919EC")) +
@@ -191,18 +191,18 @@ speed <- ggplot() +
   geom_pointrange(data = subset(Movement_df, Status == "Wild-raised" & Sex == "Female" & is.finite(Mean_Speed_est) & is.finite(Mean_Speed_low) & is.finite(Mean_Speed_high)), 
                   aes(x = Mean_Speed_est, y = ID, xmin = Mean_Speed_low, xmax = Mean_Speed_high, color = "Female"), 
                   shape = 17) +
-  geom_vline(xintercept = META_df[3,"speed_est"], 
+  geom_vline(xintercept = META_df[1,"speed_est"], 
              color = "#E823A1", lty = "dashed", lwd = 1) + #area_est
-  geom_rect(data = META_df[3,], 
+  geom_rect(data = META_df[1,], 
             aes(xmin = speed_low, xmax = speed_high, ymin = -Inf, ymax = Inf, color = "Female"), 
             color = NA, fill = "#E823A1", alpha = 0.15) +
   # male wild-raised
   geom_pointrange(data = subset(Movement_df, Status == "Wild-raised" & Sex == "Male" & is.finite(Mean_Speed_est) & is.finite(Mean_Speed_low) & is.finite(Mean_Speed_high)), 
                   aes(x = Mean_Speed_est, y = ID, xmin = Mean_Speed_low, xmax = Mean_Speed_high, color = "Male"), 
                   shape = 15) +
-  geom_vline(xintercept = META_df[4,"speed_est"], 
+  geom_vline(xintercept = META_df[2,"speed_est"], 
              color = "#2919EC", lty = "dashed", lwd = 1) + #area_est
-  geom_rect(data = META_df[4,], 
+  geom_rect(data = META_df[2,], 
             aes(xmin = speed_low, xmax = speed_high, ymin = -Inf, ymax = Inf, color = "Male"), 
             color = NA, fill = "#2919EC", alpha = 0.15) +
   scale_color_manual("Sex", values = c("Female" = "#E823A1", "Male" = "#2919EC")) +
